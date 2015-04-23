@@ -40,7 +40,7 @@ def api2data(id,x):
 
 
 def api2img(id,x):
-    base_url="http://d3gtl9l2a4fn1j.cloudfront.net/t/p/w500"
+    base_url="http://image.tmdb.org/t/p/w500"
     request = urllib2.Request("http://api.themoviedb.org/3/movie/%s?api_key=%s&language=es" % (id,'YOUR_API_KEY_HERE'), headers={"Accept" : "application/json"})
     response = urllib2.urlopen(request).read()
     data = json.loads(response)
