@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import MySQLdb as mdb
-import sys, api, time
+import sys, api, time, os
 
 db_host = 'localhost'
 usuario = 'YOUR_MYSQL_USER_HERE'
@@ -20,6 +20,8 @@ with db:
 	a = set(pelis_a)
 
 # Hago listado de las peliculas en la db de pelis: pelis_b
+pelis_b_test = [10673, 550]
+
 with db:
 	cur = db.cursor()
 	cur.execute("SELECT * FROM pelis")
@@ -38,18 +40,16 @@ with db:
 # c = a - b
 c = b.difference(a)
 
-# Creo el fichero lista_c.txt
-file_wget = open('lista_c.txt','a')
+# Descargo las imagenes desde tmdb
 for i in c:
 	try:
 	    path1 = api.api2img(i,'poster_path')
-	    file_wget.write(str(path1) + '\n')
+	    os.system('wget -nc -P ../public_html/pelis/img/posters %s' % (path1,))
 	    path2 = api.api2img(i,'backdrop_path')
-	    file_wget.write(str(path2) + '\n')
+	    os.system('wget -nc -P ../public_html/pelis/img/posters %s' % (path2,))
 	    time.sleep(0.5)
 	except:
 		pass
-file_wget.close()
 
 # Inserto los datos de lista_c en la db de tmdb
 with db:
@@ -58,15 +58,14 @@ with db:
  		try:
 	 		id_w = i
 	 		backdrop_path_w = api.api2data(i,'backdrop_path')[1:]
-	 		genres_w = api.api2data(i,'genres')	
-	 		original_title_w = api.api2data(i,'original_title')
+	 		#genres_w = api.api2data(i,'genres')	
+	 		#original_title_w = api.api2data(i,'original_title')
 	 		poster_path_w = api.api2data(i,'poster_path')[1:]
-	 		release_date_w = api.api2data(i,'release_date')
+	 		#release_date_w = api.api2data(i,'release_date')
 	 		runtime_w = api.api2data(i,'runtime')
 	 		title_w = api.api2data(i,'title')
-	 		vote_average_w = api.api2data(i,'vote_average')
-	 		#values_w = (i, backdrop_path_w, genres_w, original_title_w, poster_path_w, release_date_w, runtime_w, title_w, vote_average_w)
-	 		values_w = (i, backdrop_path_w, poster_path_w, title_w)
-	 		cur.execute("INSERT INTO test VALUES(%s, %s, %s, %s)", values_w)
+	 		#vote_average_w = api.api2data(i,'vote_average')
+	 		values_w = (i, backdrop_path_w, poster_path_w, title_w, runtime_w)
+	 		cur.execute("INSERT INTO test VALUES(%s, %s, %s, %s, %s)", values_w)
 		except:
 			pass
